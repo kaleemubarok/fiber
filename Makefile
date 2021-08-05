@@ -5,7 +5,15 @@ include .env
 docker.network:
 	docker network create -d bridge dev-network
 
+docker.build:
+	docker build -t fiber .
 
+docker.create-run.container:
+	docker run --rm -d \
+		--name dev-fiber \
+		--network dev-network \
+		-p 3500:3500 \
+		fiber
 
 #Database
 docker.db.run:
