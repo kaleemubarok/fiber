@@ -20,6 +20,7 @@ func TestPrivateRoutes(t *testing.T) {
 
 	dataString := `{"id": "00000000-0000-0000-0000-000000000000"}`
 
+	oldToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Mjg0NDc1Mjd9.j6NWm0gjmdQ7Hy6mBDwjJS21I4W8aHBA1E3aNWz7uyY"
 	token, err := utils.GenerateNewAccessToken()
 	if err != nil {
 		panic(err)
@@ -46,10 +47,10 @@ func TestPrivateRoutes(t *testing.T) {
 			description:   "delete book without right credentials",
 			route:         "/api/v1/book",
 			method:        "DELETE",
-			tokenString:   "Bearer ",
+			tokenString:   "Bearer " + oldToken,
 			body:          strings.NewReader(dataString),
 			expectedError: false,
-			expectedCode:  403,
+			expectedCode:  401,
 		}, {
 			description:   "delete book with credentials",
 			route:         "/api/v1/book",
