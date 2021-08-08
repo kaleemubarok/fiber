@@ -170,3 +170,157 @@ func CreateBook(c *fiber.Ctx) error {
 	})
 
 }
+
+// UpdateBook func for updates book by given ID.
+// @Description Update book.
+// @Summary update book
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param id body string true "Book ID"
+// @Param title body string true "Title"
+// @Param author body string true "Author"
+// @Param book_status body integer true "Book status"
+// @Param book_attrs body models.BookAttrs true "Book attributes"
+// @Success 201 {string} status "ok"
+// @Security ApiKeyAuth
+// @Router /v1/book [put]
+func UpdateBook(c *fiber.Ctx) error {
+	claims, err := utils.ExtractTokenMetadata(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	now := time.Now().Unix()
+	expires := claims.Expires
+	if now > expires {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   "unauthorized, check token expiration",
+		})
+	}
+	book := &models.Book{}
+
+	if err := c.BodyParser(book); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	foundedBook, err := db.GetBook(book.ID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   "book with given ID not Found",
+		})
+	}
+
+	book.UpdateAt = time.Now()
+
+	validate := appUtils.NewValidator()
+
+	if err := validate.Struct(book); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   appUtils.ValidatorErrors(err),
+		})
+	}
+
+	if err := db.UpdateBook(foundedBook.ID, book); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	return c.SendStatus(fiber.StatusCreated)
+
+}
+
+// DeleteBook func for deletes book by given ID.
+// @Description Delete book by given ID.
+// @Summary delete book by given ID
+// @Tags Book
+// @Accept json
+// @Produce json
+// @Param id body string true "Book ID"
+// @Success 204 {string} status "ok"
+// @Security ApiKeyAuth
+// @Router /v1/book [delete]
+func DeleteBook(c *fiber.Ctx) error {
+	claims, err := utils.ExtractTokenMetadata(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	now := time.Now().Unix()
+	expires := claims.Expires
+
+	if now > expires {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": true,
+			"msg":   "unauthorized, check expiration time of your token",
+		})
+	}
+
+	book := &models.Book{}
+
+	if err := c.BodyParser(book); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	validate := appUtils.NewValidator()
+
+	if err := validate.StructPartial(book, "id"); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   appUtils.ValidatorErrors(err),
+		})
+	}
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		// Return status 500 and database connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	foundedBook, err := db.GetBook(book.ID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   "book with this ID not found",
+		})
+	}
+
+	if err := db.DeleteBook(foundedBook.ID); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Return status 204 no content.
+	return c.SendStatus(fiber.StatusNoContent)
+}
