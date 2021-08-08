@@ -2,6 +2,7 @@ CREATE EXTENTION IF NOT EXIST "uui-ossp";
 
 SET TIMEZONE="Asia/Jakarta";
 
+DROP TABLE IF EXISTS books;
 CREATE TABLE books (
     id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW,

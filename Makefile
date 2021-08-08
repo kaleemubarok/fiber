@@ -5,10 +5,11 @@ include .env
 docker.network:
 	docker network create -d bridge dev-network
 
-docker.build:
+docker.fiber.build:
 	docker build -t fiber .
 
-docker.create-run.container:
+docker.fiber.run:
+	make docker.fiber.build
 	docker run --rm -d \
 		--name dev-fiber \
 		--network dev-network \
@@ -16,7 +17,7 @@ docker.create-run.container:
 		fiber
 
 #Database
-docker.db.run:
+docker.postgres.run:
 	docker run --rm -d \
 		--name dev-postgres \
 		--network dev-network \
@@ -33,12 +34,25 @@ docker.db.run:
 migrate.up:
 	migrate \
 		-path $(PWD)/platform/migrations \
-		-database "${MIGRATE_DB}" \
+		-database ${MIGRATE_DB} \
 		up
 
 migrate.down:
 	migrate \
 		-path $(PWD)/platform/migrations \
-		-database "${MIGRATE_DB}" \
+		-database ${MIGRATE_DB} \
 		down
 
+migrate.force:
+	migrate -path $(PWD)/platform/migrations -database ${MIGRATE_DB} force $(version)
+
+
+
+#stop docker
+docker.stop: docker.stop.fiber docker.stop.postgres
+
+docker.stop.fiber:
+	docker stop dev-fiber
+
+docker.stop.postgres:
+	docker stop dev-postgres
