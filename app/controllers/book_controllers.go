@@ -6,7 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/kaleemubarok/fiber/app/models"
-	appUtils "github.com/kaleemubarok/fiber/app/utils"
 	"github.com/kaleemubarok/fiber/pkg/utils"
 	"github.com/kaleemubarok/fiber/platform/database"
 )
@@ -141,7 +140,7 @@ func CreateBook(c *fiber.Ctx) error {
 		})
 	}
 
-	validate := appUtils.NewValidator()
+	validate := utils.NewValidator()
 
 	book.ID = uuid.New()
 	book.CreatedAt = time.Now()
@@ -151,7 +150,7 @@ func CreateBook(c *fiber.Ctx) error {
 	if err := validate.Struct(book); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,
-			"msg":   err.Error(),
+			"msg":   utils.ValidatorErrors(err),
 		})
 	}
 
@@ -213,7 +212,7 @@ func UpdateBook(c *fiber.Ctx) error {
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
 		})
@@ -229,12 +228,12 @@ func UpdateBook(c *fiber.Ctx) error {
 
 	book.UpdateAt = time.Now()
 
-	validate := appUtils.NewValidator()
+	validate := utils.NewValidator()
 
 	if err := validate.Struct(book); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
-			"msg":   appUtils.ValidatorErrors(err),
+			"msg":   utils.ValidatorErrors(err),
 		})
 	}
 
@@ -287,12 +286,12 @@ func DeleteBook(c *fiber.Ctx) error {
 		})
 	}
 
-	validate := appUtils.NewValidator()
+	validate := utils.NewValidator()
 
 	if err := validate.StructPartial(book, "id"); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
-			"msg":   appUtils.ValidatorErrors(err),
+			"msg":   utils.ValidatorErrors(err),
 		})
 	}
 

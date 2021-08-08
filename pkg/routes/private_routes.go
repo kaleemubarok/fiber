@@ -7,7 +7,7 @@ import (
 )
 
 func PrivateRoutes(a *fiber.App) {
-	route := a.Group("/app/v1")
+	route := a.Group("/api/v1")
 
 	route.Post("/book", middleware.JWTProtected(), controllers.CreateBook)
 	route.Put("/book", middleware.JWTProtected(), controllers.UpdateBook)

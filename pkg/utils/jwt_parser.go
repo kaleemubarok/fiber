@@ -31,7 +31,7 @@ func ExtractTokenMetadata(c *fiber.Ctx) (*TokenMetadata, error) {
 }
 
 func extractToken(c *fiber.Ctx) string {
-	bearToken := c.Get("Authoriztion")
+	bearToken := c.Get("Authorization")
 
 	onlyToken := strings.Split(bearToken, " ")
 	if len(onlyToken) == 2 {

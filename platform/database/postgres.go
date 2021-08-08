@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+
+	_ "github.com/jackc/pgx/v4/stdlib" // load pgx driver for PostgreSQL
 )
 
 func PostgresSQLConnetion() (*sqlx.DB, error) {

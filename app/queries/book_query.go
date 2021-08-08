@@ -23,7 +23,7 @@ func (q *BookQueries) GetBooks() ([]models.Book, error) {
 
 	query := `SELECT * FROM books`
 
-	err := q.Get(&books, query)
+	err := q.Select(&books, query)
 	if err != nil {
 		return books, err
 	}
@@ -46,9 +46,9 @@ func (q *BookQueries) GetBook(id uuid.UUID) (models.Book, error) {
 
 func (q *BookQueries) CreateBook(b *models.Book) error {
 	query := `INSERT INTO books 
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
-	_, err := q.Exec(query, b.ID, b.CreatedAt, b.UpdateAt, b.UserID, b.Title, b.Author, b.BookStatus, b.BookAttrs)
+	_, err := q.Exec(query, b.ID, b.CreatedAt, b.UpdateAt, b.Title, b.Author, b.BookStatus, b.BookAttrs)
 	if err != nil {
 		return err
 	}

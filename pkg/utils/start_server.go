@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func StartServerWithGracefulShitdown(a *fiber.App) {
+func StartServerWithGracefulShutdown(a *fiber.App) {
 	idleConnsCLosed := make(chan struct{})
 
 	go func() {
