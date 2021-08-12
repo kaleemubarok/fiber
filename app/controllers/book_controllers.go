@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -95,10 +96,12 @@ func GetBook(c *fiber.Ctx) error {
 // @Tags Book
 // @Accept json
 // @Produce json
-// @Param title body string true "Title"
-// @Param author body string true "Author"
-// @Param book_attrs model.BookAttrs true "Book attributes"
-// @Success 200 {object} models.book
+// @Param id body string true "ID"
+// @Param title body models.Book.Title true "Title"
+// @Param author body models.Book.Author true "Author"
+// @Param book_status body models.Book.BookStatus true "Book Status"
+// @Param book_attrs body models.BookAttrs true "Book attributes"
+// @Success 200 {object} models.Book
 // @Security ApiKeyAuth
 // @Router /v1/book [post]
 func CreateBook(c *fiber.Ctx) error {
