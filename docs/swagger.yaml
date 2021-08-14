@@ -1,5 +1,28 @@
 basePath: /api
 definitions:
+  models.AccountSwag:
+    properties:
+      account_status:
+        type: integer
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+      salt:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - account_status
+    - email
+    - id
+    - password
+    - salt
+    type: object
   models.Book:
     properties:
       author:
@@ -17,8 +40,11 @@ definitions:
       updated_at:
         type: string
     required:
+    - author
     - book_attrs
+    - book_status
     - id
+    - title
     type: object
   models.BookAttrs:
     properties:
@@ -41,6 +67,58 @@ info:
   title: API
   version: "1.0"
 paths:
+  /v1/account:
+    post:
+      consumes:
+      - application/json
+      description: create an account.
+      parameters:
+      - description: Email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'response will be: account created.'
+          schema:
+            $ref: '#/definitions/models.AccountSwag'
+      summary: create an account
+      tags:
+      - Account
+  /v1/account/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get account details.
+      parameters:
+      - description: ID
+        in: body
+        name: id
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AccountSwag'
+      security:
+      - ApiKeyAuth: []
+      summary: get account details
+      tags:
+      - Account
   /v1/book:
     delete:
       consumes:
@@ -198,6 +276,34 @@ paths:
       summary: get all exists books.
       tags:
       - Books
+  /v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Login to get access token.
+      parameters:
+      - description: Email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: Login to get access token
+      tags:
+      - Login
   /v1/token/new:
     get:
       consumes:
